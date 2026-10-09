@@ -1,0 +1,3 @@
+# Wokwi Library Dependencies
+DHT sensor library for ESPx
+ArduinoJson

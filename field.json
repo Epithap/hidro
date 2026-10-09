@@ -1,0 +1,12 @@
+{
+    "agriculture_iot": {
+        "ph": 6.5,
+        "tds": 1200,
+        "relays": {
+            "relay1": false,
+            "relay2": false,
+            "relay3": false,
+            "relay4": false
+        }
+    }
+}

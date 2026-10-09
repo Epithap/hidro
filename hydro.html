@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKADUTA NextGen™ Smart Agriculture Command Deck</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js & Three.js 3D Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Extracted Clean Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Ambient Glow Elements -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="dashboard-shell">
+    
+    <!-- Hazard Alert HUD Banner (Auto Trigger on Critical Range) -->
+    <div class="hazard-hud-banner" id="hazard-banner">
+      <div class="hazard-text-group">
+        <div class="hazard-icon-pulse">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div>
+          <span style="font-weight: 800; letter-spacing: 0.04em;">PERINGATAN KRITIS:</span>
+          <span id="hazard-message">Kadar pH larutan melampaui batas aman batas toleransi tanaman!</span>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="belt-action-btn" id="alarm-mute-btn" style="padding:4px 10px; border-color: rgba(255,51,102,0.4);" onclick="toggleAlarmAudioMute()">
+          <span id="alarm-mute-text">Mute Alarm 🔔</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Top Bar Navigation -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <div class="logo-symbol">
+          <!-- Hydroponic Leaf SVG Icon -->
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#041b14" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a9.5 9.5 0 0 0-9 9.5c0 5 4.5 9.5 9 10.5 4.5-1 9-5.5 9-10.5A9.5 9.5 0 0 0 12 2z"/>
+            <path d="M12 2v20"/>
+            <path d="M12 7c2 2 4 3 6 3"/>
+            <path d="M12 12c-2 2-4 3-6 3"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Upik HydroTech <span style="font-size: 0.65rem; background: rgba(0, 245, 160, 0.15); color: var(--neon-emerald); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(0,245,160,0.3);">PRO v2.5</span></h1>
+          <p>Autonomous Precision Hydroponics Telemetry</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Dashboard Hub Navigation Switcher -->
+        <a href="index.html" class="portal-nav-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:7px 14px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:99px; color:#cfd9e8; font-size:0.75rem; font-weight:700; transition:all 0.2s;" onmouseover="this.style.background='rgba(0,245,160,0.15)';this.style.borderColor='#00f5a0';this.style.color='#00f5a0';" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#cfd9e8';">
+          <span>🏠 Portal Utama</span>
+        </a>
+        <a href="wokwi.html" class="portal-nav-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:7px 14px; background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.3); border-radius:99px; color:#00e5ff; font-size:0.75rem; font-weight:700; transition:all 0.2s;" onmouseover="this.style.background='rgba(0,229,255,0.2)';this.style.boxShadow='0 0 12px rgba(0,229,255,0.3)';" onmouseout="this.style.background='rgba(0,229,255,0.08)';this.style.boxShadow='none';">
+          <span>⚡ Buka Wokwi Lab</span>
+        </a>
+
+        <!-- Live Connection Status Pill -->
+        <div class="telemetry-pill" id="telemetry-badge">
+          <span class="radar-dot" id="radar-indicator"></span>
+          <span id="db-status">CONNECTING TO FIREBASE...</span>
+        </div>
+
+        <!-- Clock Widget -->
+        <div class="time-chip" id="clock-display">00:00:00 WIB</div>
+
+        <!-- Audio Sound SFX Toggle -->
+        <button class="sound-toggle-btn" id="sound-btn" title="Toggle Sound Feedback">
+          <svg id="sound-icon-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="sound-icon-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Sub-Bar / Precision Agriculture Control Belt -->
+    <div class="command-belt">
+      <div class="belt-group-left">
+        <!-- Crop Profile Preset Selector -->
+        <div class="crop-selector-wrap">
+          <span style="font-size:0.8rem;">🌱</span>
+          <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">PROFIL TANAMAN:</span>
+          <select class="crop-select" id="crop-select">
+            <option value="pakcoy" selected>Pakcoy / Sawi (pH 5.8-6.5 | TDS 1050-1400)</option>
+            <option value="selada">Selada Romaine (pH 5.6-6.2 | TDS 600-900)</option>
+            <option value="stroberi">Stroberi (pH 5.5-6.5 | TDS 1200-1500)</option>
+            <option value="cabai">Cabai Rawit (pH 6.0-6.8 | TDS 1400-1800)</option>
+            <option value="tomat">Tomat Cherry (pH 5.8-6.5 | TDS 1500-2000)</option>
+          </select>
+        </div>
+
+        <!-- Auto-Pilot Automation Mode Toggle -->
+        <button class="autopilot-btn" id="autopilot-btn" title="Toggle Closed-Loop Auto Dosing">
+          <span class="autopilot-led"></span>
+          <span>AUTOPILOT CLOSED-LOOP:</span>
+          <span id="autopilot-status" style="color:var(--text-muted)">OFF</span>
+        </button>
+      </div>
+
+      <div class="belt-group-right">
+        <!-- Export Telemetry CSV Button -->
+        <button class="belt-action-btn" id="export-csv-btn" title="Unduh Riwayat Data Sensor">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Unduh CSV Data</span>
+        </button>
+
+        <!-- Fullscreen Presentation Kiosk Mode -->
+        <button class="belt-action-btn" id="fullscreen-btn" title="Mode TV / Fullscreen Display">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <polyline points="9 21 3 21 3 15"></polyline>
+            <line x1="21" y1="3" x2="14" y2="10"></line>
+            <line x1="3" y1="21" x2="10" y2="14"></line>
+          </svg>
+          <span>Kiosk TV Mode</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Actuators & Pump Relays Panel with Timed Burst Dosing -->
+    <section class="relay-section">
+      <!-- Relay 1 -->
+      <div class="relay-item" id="relay-card-1">
+        <div class="relay-info">
+          <span class="relay-name">Pompa pH Up</span>
+          <span class="relay-desc">Korektor Basa (pH+)</span>
+          <span class="relay-status-text" id="relay1-state">STANDBY</span>
+          <div class="dosing-belt">
+            <span class="dose-label">Dosis:</span>
+            <button class="dose-pill" onclick="triggerTimedDose('relay1', 3)">3s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay1', 5)">5s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay1', 10)">10s</button>
+            <span class="dose-countdown" id="dose-cd-relay1">5s</span>
+          </div>
+        </div>
+        <label class="cyber-switch">
+          <input type="checkbox" id="relay1" onchange="handleRelayToggle('relay1', this.checked)">
+          <div class="switch-track"><div class="switch-thumb"></div></div>
+        </label>
+      </div>
+
+      <!-- Relay 2 -->
+      <div class="relay-item" id="relay-card-2">
+        <div class="relay-info">
+          <span class="relay-name">Pompa pH Down</span>
+          <span class="relay-desc">Korektor Asam (pH-)</span>
+          <span class="relay-status-text" id="relay2-state">STANDBY</span>
+          <div class="dosing-belt">
+            <span class="dose-label">Dosis:</span>
+            <button class="dose-pill" onclick="triggerTimedDose('relay2', 3)">3s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay2', 5)">5s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay2', 10)">10s</button>
+            <span class="dose-countdown" id="dose-cd-relay2">5s</span>
+          </div>
+        </div>
+        <label class="cyber-switch">
+          <input type="checkbox" id="relay2" onchange="handleRelayToggle('relay2', this.checked)">
+          <div class="switch-track"><div class="switch-thumb"></div></div>
+        </label>
+      </div>
+
+      <!-- Relay 3 -->
+      <div class="relay-item" id="relay-card-3">
+        <div class="relay-info">
+          <span class="relay-name">Pompa Nutrisi A</span>
+          <span class="relay-desc">Makronutrien N-P-K</span>
+          <span class="relay-status-text" id="relay3-state">STANDBY</span>
+          <div class="dosing-belt">
+            <span class="dose-label">Dosis:</span>
+            <button class="dose-pill" onclick="triggerTimedDose('relay3', 3)">3s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay3', 5)">5s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay3', 10)">10s</button>
+            <span class="dose-countdown" id="dose-cd-relay3">5s</span>
+          </div>
+        </div>
+        <label class="cyber-switch">
+          <input type="checkbox" id="relay3" onchange="handleRelayToggle('relay3', this.checked)">
+          <div class="switch-track"><div class="switch-thumb"></div></div>
+        </label>
+      </div>
+
+      <!-- Relay 4 -->
+      <div class="relay-item" id="relay-card-4">
+        <div class="relay-info">
+          <span class="relay-name">Pompa Nutrisi B</span>
+          <span class="relay-desc">Mikronutrien & Cal-Mag</span>
+          <span class="relay-status-text" id="relay4-state">STANDBY</span>
+          <div class="dosing-belt">
+            <span class="dose-label">Dosis:</span>
+            <button class="dose-pill" onclick="triggerTimedDose('relay4', 3)">3s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay4', 5)">5s</button>
+            <button class="dose-pill" onclick="triggerTimedDose('relay4', 10)">10s</button>
+            <span class="dose-countdown" id="dose-cd-relay4">5s</span>
+          </div>
+        </div>
+        <label class="cyber-switch">
+          <input type="checkbox" id="relay4" onchange="handleRelayToggle('relay4', this.checked)">
+          <div class="switch-track"><div class="switch-thumb"></div></div>
+        </label>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Grid -->
+    <main class="dashboard-layout">
+
+      <!-- pH Sensor Radial Gauge -->
+      <article class="glass-card gauge-card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+            Tingkat Keasaman pH
+          </div>
+          <span class="badge-pill badge-optimal" id="ph-badge">OPTIMAL</span>
+        </div>
+
+        <div class="gauge-hero">
+          <div class="gauge-canvas-wrapper">
+            <canvas id="phGauge"></canvas>
+          </div>
+          <div class="gauge-overlay-val">
+            <div class="gauge-number" id="phText" style="color: var(--neon-emerald);">0.00</div>
+            <div class="gauge-unit">Target: 5.80 - 6.50</div>
+          </div>
+        </div>
+
+        <div class="gauge-footer-stats">
+          <div class="stat-box">
+            <div class="stat-label">Batas Ideal</div>
+            <div class="stat-value" style="color: var(--neon-emerald);">5.8 - 6.5</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Stabilitas pH</div>
+            <div class="stat-value" id="ph-stability">99.4%</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- TDS / PPM Sensor Radial Gauge -->
+      <article class="glass-card gauge-card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Konsentrasi TDS
+          </div>
+          <span class="badge-pill badge-optimal" id="tds-badge">OPTIMAL</span>
+        </div>
+
+        <div class="gauge-hero">
+          <div class="gauge-canvas-wrapper">
+            <canvas id="tdsGauge"></canvas>
+          </div>
+          <div class="gauge-overlay-val">
+            <div class="gauge-number" id="tdsText" style="color: var(--neon-amber);">0</div>
+            <div class="gauge-unit">PPM (Part Per Million)</div>
+          </div>
+        </div>
+
+        <div class="gauge-footer-stats">
+          <div class="stat-box">
+            <div class="stat-label">Konversi EC</div>
+            <div class="stat-value" id="ec-val" style="color: var(--neon-cyan);">0.0 mS/cm</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Target PPM</div>
+            <div class="stat-value" style="color: var(--neon-amber);">1000 - 1400</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Realtime Historical Waveform Graph -->
+      <article class="glass-card chart-card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Spektrum Telemetri Real-Time
+          </div>
+          <div class="chart-legend-custom">
+            <div class="legend-item">
+              <div class="legend-indicator" style="background: var(--neon-emerald); box-shadow: 0 0 8px var(--neon-emerald);"></div>
+              <span>pH Level (Kiri)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-indicator" style="background: var(--neon-amber); box-shadow: 0 0 8px var(--neon-amber);"></div>
+              <span>TDS PPM (Kanan)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="sensorGraph"></canvas>
+        </div>
+      </article>
+
+      <!-- Plant Health & AI Diagnostic Card -->
+      <article class="glass-card health-card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Analisis Kesehatan Larutan Hidroponik
+          </div>
+          <span class="badge-pill badge-optimal">AI DIAGNOSTIC ACTIVE</span>
+        </div>
+
+        <div class="health-score-container">
+          <div class="score-dial">
+            <svg viewBox="0 0 72 72">
+              <circle class="score-bg-circle" cx="36" cy="36" r="30"/>
+              <circle class="score-progress-circle" id="score-ring" cx="36" cy="36" r="30"/>
+            </svg>
+            <div class="score-number" id="score-text">98%</div>
+          </div>
+          <div class="health-analysis-text">
+            <h4 id="health-status-title">Status Larutan: Sangat Prima & Optimal</h4>
+            <p id="health-status-desc">Kombinasi pH dan kelarutan nutrisi TDS berada pada rasio sempurna untuk penyerapan nutrisi akar tanaman sayuran daun (Pakcoy / Selada).</p>
+          </div>
+        </div>
+
+        <div class="metrics-summary-grid">
+          <div class="metric-chip">
+            <div class="metric-chip-label">Update Terakhir</div>
+            <div class="metric-chip-value" id="last-update" style="font-size: 0.95rem;">-</div>
+          </div>
+          <div class="metric-chip">
+            <div class="metric-chip-label">Tekanan Osmotik Est.</div>
+            <div class="metric-chip-value" id="osmotic-press">0.45 atm</div>
+          </div>
+          <div class="metric-chip">
+            <div class="metric-chip-label">Fase Siklus</div>
+            <div class="metric-chip-value" style="color: var(--neon-emerald);">Vegetatif Prima</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Live Event Log Console -->
+      <article class="glass-card terminal-card">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"/>
+              <line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+            Live Telemetry Event Stream
+          </div>
+          <span style="font-size:0.7rem; font-family:'JetBrains Mono',monospace; color:var(--text-dim);">RTDB /agriculture_iot</span>
+        </div>
+
+        <div class="terminal-window" id="terminal-logs">
+          <div class="terminal-line">
+            <span class="t-stamp">[00:00:00]</span>
+            <span class="t-tag">[SYSTEM]</span>
+            <span>Menginisialisasi modul SKADUTA IoT Engine...</span>
+          </div>
+          <div class="terminal-line success">
+            <span class="t-stamp">[00:00:01]</span>
+            <span class="t-tag">[FIREBASE]</span>
+            <span>Membuat koneksi WebSocket ke Google Firebase RTDB...</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Nutrient Reservoir Tank & Microclimate Station Card -->
+      <article class="glass-card" style="grid-column: span 6; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+            Kapasitas Tandon Air & Mikroklimat Greenhouse
+          </div>
+          <span class="badge-pill badge-optimal" id="tank-badge">LEVEL AMAN (88%)</span>
+        </div>
+
+        <!-- Water Tank Widget -->
+        <div class="reservoir-box">
+          <div class="tank-graphic-wrap">
+            <div class="tank-fill-liquid" id="tank-liquid" style="height: 88%;"></div>
+            <div class="tank-level-text" id="tank-percent-text">88%</div>
+          </div>
+          <div class="tank-meta-info">
+            <div class="tank-meta-title">Tandon Utama Larutan Nutrisi (200 L)</div>
+            <div class="tank-meta-desc">
+              Volume Tersedia: <strong id="tank-liters-text" style="color:var(--neon-cyan)">176 Liter</strong> dari 200 Liter.<br>
+              Konsumsi harian diperkirakan ~12 Liter/hari berdasarkan laju transpirasi tanaman.
+            </div>
+          </div>
+        </div>
+
+        <!-- Microclimate Weather & VPD Station -->
+        <div class="microclimate-grid">
+          <div class="climate-chip">
+            <div class="climate-chip-label">Suhu Air Tandon</div>
+            <div class="climate-chip-val" id="water-temp-val" style="color:var(--neon-cyan)">24.6°C</div>
+            <div class="climate-chip-status">Sangat Ideal (22-26°)</div>
+          </div>
+          <div class="climate-chip">
+            <div class="climate-chip-label">Suhu Greenhouse</div>
+            <div class="climate-chip-val" id="ambient-temp-val" style="color:var(--neon-amber)">28.4°C</div>
+            <div class="climate-chip-status">Hangat Normal</div>
+          </div>
+          <div class="climate-chip">
+            <div class="climate-chip-label">Kelembapan Udara</div>
+            <div class="climate-chip-val" id="humidity-val" style="color:var(--neon-emerald)">68% RH</div>
+            <div class="climate-chip-status">Transpirasi Prima</div>
+          </div>
+          <div class="climate-chip">
+            <div class="climate-chip-label">Vapor Deficit (VPD)</div>
+            <div class="climate-chip-val" id="vpd-val" style="color:var(--neon-purple)">1.15 kPa</div>
+            <div class="climate-chip-status">Zona Sweet-Spot</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Crop Growth Tracker & Harvest Countdown Card -->
+      <article class="glass-card growth-card" style="grid-column: span 12;">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Pelacak Siklus Tumbuh & Prediksi Panen (HST)
+          </div>
+          <span class="badge-pill badge-optimal" id="harvest-countdown-badge">16 HARI MENUJU PANEN</span>
+        </div>
+
+        <div class="growth-tracker-belt">
+          <div class="growth-progress-line" id="growth-progress-bar"></div>
+          
+          <div class="growth-step done">
+            <div class="growth-step-node">✓</div>
+            <div class="growth-step-title">Penyemaian</div>
+            <div class="growth-step-sub">HST 0 – 7</div>
+          </div>
+
+          <div class="growth-step done">
+            <div class="growth-step-node">✓</div>
+            <div class="growth-step-title">Pindah Tanam</div>
+            <div class="growth-step-sub">HST 8 – 14</div>
+          </div>
+
+          <div class="growth-step current">
+            <div class="growth-step-node">19</div>
+            <div class="growth-step-title">Vegetatif Aktif</div>
+            <div class="growth-step-sub">HST 15 – 28 (Saat ini)</div>
+          </div>
+
+          <div class="growth-step">
+            <div class="growth-step-node">35</div>
+            <div class="growth-step-title">Panen Raya</div>
+            <div class="growth-step-sub">HST 29 – 35</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); font-size:0.78rem;">
+          <div>Tanaman Aktif: <strong id="growth-crop-name" style="color:var(--neon-emerald)">Pakcoy Nauli F1</strong> | Hari Setelah Tanam: <strong>Hari ke-19</strong> dari 35 Hari</div>
+          <div>Estimasi Hasil Panen: <strong style="color:var(--neon-cyan)">~14.5 Kg</strong> | Tanggal Panen: <strong>25 Oktober</strong></div>
+        </div>
+      </article>
+
+      <!-- ============================================================ -->
+      <!-- FULL WIDESCREEN 3D DIGITAL TWIN: SMART HOME URBAN HYDROPONICS -->
+      <!-- ============================================================ -->
+      <article class="glass-card three-arena-card" id="three-arena-section">
+        <div class="card-head" style="margin-bottom:0;">
+          <div class="card-title" style="font-size:1.05rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--neon-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            3D Digital Twin: Smart Home Urban Hydroponics (36+ Aksi Interaktif)
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span class="badge-pill badge-optimal" id="3d-fps-badge">⚡ 60 FPS WEBGL</span>
+            <span class="badge-pill" style="background:rgba(0,210,255,0.15); color:var(--neon-cyan); border:1px solid rgba(0,210,255,0.3);" id="3d-action-toast">SIAP INTERAKSI</span>
+          </div>
+        </div>
+
+        <!-- 36-Action Categorized Control Deck Toolbar -->
+        <div class="deck-3d-toolbar">
+          <div class="deck-tabs-row" id="deck-tabs">
+            <button class="deck-tab-btn active" data-tab="lighting">💡 Lampu LED (<span id="c-light">5</span>)</button>
+            <button class="deck-tab-btn" data-tab="watering">🚿 Siram & Air (<span id="c-water">7</span>)</button>
+            <button class="deck-tab-btn" data-tab="nutrients">🧪 Dosis Nutrisi (<span id="c-nutr">6</span>)</button>
+            <button class="deck-tab-btn" data-tab="climate">🌪️ Kipas & Suhu (<span id="c-clim">5</span>)</button>
+            <button class="deck-tab-btn" data-tab="camera">🎥 Kamera & Sudut (<span id="c-cam">6</span>)</button>
+            <button class="deck-tab-btn" data-tab="visuals">🔬 X-Ray & Mode (<span id="c-vis">4</span>)</button>
+            <button class="deck-tab-btn" data-tab="macro">⚡ Makro Otomatis (<span id="c-macro">3</span>)</button>
+          </div>
+
+          <!-- Dynamic Action Buttons Container -->
+          <div class="deck-actions-grid" id="deck-actions-container">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- The Fullscreen 3D Viewport Box -->
+        <div class="three-viewport-full" id="three-container">
+          <!-- Floating On-Canvas HUD Badges -->
+          <div class="three-badge-overlay">
+            <span class="three-badge-tag" id="hud-growlight">💡 LAMPU: WHITE SUNLIGHT</span>
+            <span class="three-badge-tag" id="hud-fan">🌪️ KIPAS: OFF (0 RPM)</span>
+            <span class="three-badge-tag" id="hud-spray">🚿 SPRAYER: STANDBY</span>
+            <span class="three-badge-tag" id="hud-aerator">🫧 AERATOR: ON</span>
+            <span class="three-badge-tag" id="hud-flow">💧 NFT FLOW: ACTIVE</span>
+          </div>
+
+          <!-- Interactive Trigger Notification Toast -->
+          <div class="three-action-toast" id="three-action-toast-msg">AKSI DIEKSEKUSI</div>
+
+          <!-- Camera Reset Button & Click Hint -->
+          <button class="three-reset-btn" id="three-reset-cam">🔄 Reset Kamera</button>
+          <div class="three-controls-hint">🖱️ Klik langsung model (Lampu/Kipas/Tanaman/Tandon) | Drag mouse untuk putar 360° | Scroll zoom</div>
+        </div>
+
+        <!-- Telemetry & Hardware Actuator Live Status Footer -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:10px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); font-size:0.76rem; color:var(--text-muted);">
+          <div>Hardware: <strong>Home Hydroponic 3-Tier NFT Rack</strong> | Nozel Sprayer: <strong style="color:var(--neon-emerald)">6 Titik Aktif</strong> | Lampu: <strong style="color:var(--neon-amber)" id="light-watt-text">3x 36W LED Bar (Active)</strong></div>
+          <div>Status Aliran: <strong id="particle-status" style="color:var(--neon-cyan)">Sirkulasi 4.8 L/min</strong> | Interaksi Raycaster: <strong style="color:var(--neon-emerald)">READY</strong></div>
+        </div>
+      </article>
+
+    </main>
+
+  </div>
+
+  <!-- Floating AI Assistant Launcher FAB -->
+  <div class="ai-fab-container">
+    <div class="ai-fab-tooltip" id="ai-fab-tooltip">
+      <span>💬 Tanya AI / Perintah Suara</span>
+    </div>
+    <button id="ai-fab-btn" class="ai-fab-btn" title="Buka AI Command Deck">
+      <div class="ai-fab-pulse"></div>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path>
+        <path d="M18 10a6 6 0 0 1-12 0"></path>
+        <line x1="12" y1="16" x2="12" y2="21"></line>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+      </svg>
+      <span class="ai-fab-badge">AI AGENT</span>
+    </button>
+  </div>
+
+  <!-- Holographic AI Chat & Voice Command Panel -->
+  <aside class="ai-chat-window" id="ai-chat-window">
+    <div class="ai-chat-header">
+      <div class="ai-profile-group">
+        <div class="ai-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#041a12" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-4 0V4a2 2 0 0 1 2-2z"></path>
+            <rect x="4" y="6" width="16" height="12" rx="2"></rect>
+            <circle cx="9" cy="11" r="1.5" fill="#041a12"></circle>
+            <circle cx="15" cy="11" r="1.5" fill="#041a12"></circle>
+            <path d="M9 15h6"></path>
+          </svg>
+        </div>
+        <div class="ai-title-box">
+          <h3>UPIK Hydro-AI Core</h3>
+          <p><span class="ai-status-pulse"></span> ONLINE &bull; NLU ACTIVE</p>
+        </div>
+      </div>
+      <div class="ai-header-actions">
+        <!-- Text-to-speech voice speaker toggle -->
+        <button class="ai-icon-btn active" id="ai-tts-btn" title="Suara AI (Bicara)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+        <!-- Clear chat -->
+        <button class="ai-icon-btn" id="ai-clear-btn" title="Bersihkan Obrolan">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <!-- Close / Minimize -->
+        <button class="ai-icon-btn" id="ai-close-btn" title="Tutup Chat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Message History Stream -->
+    <div class="ai-messages-list" id="ai-messages-list">
+      <!-- Initial AI Message -->
+      <div class="msg-row ai">
+        <div class="msg-bubble">
+          <div>Halo! Saya <strong>UPIK Hydro-AI</strong>, asisten cerdas greenhouse Anda. 🌿</div>
+          <div style="margin-top:6px; color: var(--text-muted); font-size:0.78rem;">
+            Anda bisa mengobrol santai atau memberi perintah bebas seperti:
+            <ul style="margin: 4px 0 0 16px;">
+              <li><em>"aku mau kamu matikan nutrisi A"</em></li>
+              <li><em>"tolong hidupkan pompa pH up dong"</em></li>
+              <li><em>"matikan semua pompa sekarang"</em></li>
+              <li><em>"bagaimana kondisi larutan air hari ini?"</em></li>
+            </ul>
+          </div>
+          <div class="msg-time">Sekarang</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompt Suggestions Chips -->
+    <div class="ai-prompt-chips">
+      <button class="prompt-chip" id="chip-status">📊 Status Air</button>
+      <button class="prompt-chip" id="chip-misting">🚿 Siram Tanaman</button>
+      <button class="prompt-chip" id="chip-light-blurple">🟣 Spektrum Blurple</button>
+      <button class="prompt-chip" id="chip-fan-turbo">🌪️ Kipas Turbo</button>
+      <button class="prompt-chip" id="chip-xray">🩻 Mode X-Ray</button>
+      <button class="prompt-chip" id="chip-morning">🌅 Routine Pagi</button>
+      <button class="prompt-chip" id="chip-stop-all">🛑 Matikan Pompa</button>
+      <button class="prompt-chip" id="chip-rekomendasi">🌱 Edukasi Nutrisi</button>
+    </div>
+
+    <!-- Interactive Input Dock -->
+    <div class="ai-input-dock">
+      <input type="text" id="ai-input" class="ai-text-input" placeholder="Ketik perintah bebas (cth: tolong matikan nutrisi a)..." autocomplete="off">
+      <button class="ai-mic-btn" id="ai-mic-btn" title="Perintah Suara (Klik & Bicara)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="22"></line>
+        </svg>
+      </button>
+      <button class="ai-send-btn" id="ai-send-btn" title="Kirim Perintah">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Firebase JavaScript SDK Compat (Compatible with both file:// protocol and http:// server) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <!-- Application Engine -->
+  <script src="app.js"></script>
+</body>
+</html>

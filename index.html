@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SKADUTA NextGen™ - Unified IoT Command Portal</title>
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Shared Design System -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .portal-shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 30px 24px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .portal-hero {
+      text-align: center;
+      margin: 30px auto 40px;
+      max-width: 840px;
+    }
+
+    .portal-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(0, 245, 160, 0.1);
+      border: 1px solid rgba(0, 245, 160, 0.3);
+      border-radius: 99px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--neon-emerald);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      box-shadow: 0 0 20px rgba(0, 245, 160, 0.15);
+    }
+
+    .portal-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 70%, #00f5a0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .portal-desc {
+      font-size: clamp(0.95rem, 1.3vw, 1.12rem);
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* 2 Gateway Cards Grid */
+    .portal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+
+    .gateway-card {
+      background: rgba(10, 18, 28, 0.75);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .gateway-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+    }
+
+    .gateway-card.hydro::before {
+      background: linear-gradient(90deg, #00f5a0, #00a896);
+    }
+
+    .gateway-card.wokwi::before {
+      background: linear-gradient(90deg, #00e5ff, #3a7bd5);
+    }
+
+    .gateway-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .gateway-card.hydro:hover {
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 245, 160, 0.2);
+      border-color: rgba(0, 245, 160, 0.4);
+    }
+
+    .gateway-card.wokwi:hover {
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 229, 255, 0.2);
+      border-color: rgba(0, 229, 255, 0.4);
+    }
+
+    .gateway-icon-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .gateway-card.hydro .gateway-icon-box {
+      background: linear-gradient(135deg, rgba(0, 245, 160, 0.2) 0%, rgba(0, 168, 150, 0.3) 100%);
+      border: 1px solid rgba(0, 245, 160, 0.4);
+      color: #00f5a0;
+    }
+
+    .gateway-card.wokwi .gateway-icon-box {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(58, 123, 213, 0.3) 100%);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      color: #00e5ff;
+    }
+
+    .gateway-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    .gateway-card.hydro .gateway-badge {
+      background: rgba(0, 245, 160, 0.15);
+      color: #00f5a0;
+      border: 1px solid rgba(0, 245, 160, 0.3);
+    }
+
+    .gateway-card.wokwi .gateway-badge {
+      background: rgba(0, 229, 255, 0.15);
+      color: #00e5ff;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+
+    .gateway-title {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .gateway-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 20px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.83rem;
+      color: #c4d4e6;
+    }
+
+    .feature-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .gateway-action-btn {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .gateway-card.hydro .gateway-action-btn {
+      background: linear-gradient(135deg, #00f5a0 0%, #00a896 100%);
+      color: #032014;
+      box-shadow: 0 10px 25px rgba(0, 245, 160, 0.3);
+    }
+
+    .gateway-card.hydro:hover .gateway-action-btn {
+      box-shadow: 0 14px 35px rgba(0, 245, 160, 0.5);
+      transform: scale(1.02);
+    }
+
+    .gateway-card.wokwi .gateway-action-btn {
+      background: linear-gradient(135deg, #00e5ff 0%, #3a7bd5 100%);
+      color: #031828;
+      box-shadow: 0 10px 25px rgba(0, 229, 255, 0.3);
+    }
+
+    .gateway-card.wokwi:hover .gateway-action-btn {
+      box-shadow: 0 14px 35px rgba(0, 229, 255, 0.5);
+      transform: scale(1.02);
+    }
+
+    /* Footer Info */
+    .portal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow Backgrounds -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="portal-shell">
+
+    <!-- Header Navigation -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <div class="logo-symbol">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#041b14" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a9.5 9.5 0 0 0-9 9.5c0 5 4.5 9.5 9 10.5 4.5-1 9-5.5 9-10.5A9.5 9.5 0 0 0 12 2z"/>
+            <path d="M12 2v20"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Upik IoT Ecosystem <span style="font-size: 0.65rem; background: rgba(0, 245, 160, 0.15); color: var(--neon-emerald); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(0,245,160,0.3);">UNIFIED HUB</span></h1>
+          <p>Autonomous Hydroponics & ESP32 Cloud Simulation Platform</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live Connection Status Pill -->
+        <div class="telemetry-pill" id="telemetry-badge">
+          <span class="radar-dot" id="radar-indicator"></span>
+          <span id="db-status">CONNECTING TO FIREBASE...</span>
+        </div>
+
+        <!-- Clock Widget -->
+        <div class="time-chip" id="clock-display">00:00:00 WIB</div>
+      </div>
+    </header>
+
+    <!-- Hero Portal Heading -->
+    <section class="portal-hero">
+      <div class="portal-tag">
+        <span>⚡ PUSAT KENDALI TERPADU IoT</span>
+      </div>
+      <h2 class="portal-title">Pilih Pusat Komando Operasional</h2>
+      <p class="portal-desc">
+        Satu arsitektur Firebase Realtime Database terpusat yang menghubungkan sistem budidaya hidroponik nyata dan simulator hardware ESP32 Wokwi.
+      </p>
+    </section>
+
+    <!-- 2 Dashboard Selection Cards Grid -->
+    <main class="portal-grid">
+
+      <!-- DASHBOARD 1: HIDROPONIK NEXTGEN -->
+      <a href="hydro.html" class="gateway-card hydro">
+        <div>
+          <div class="gateway-icon-box">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a9.5 9.5 0 0 0-9 9.5c0 5 4.5 9.5 9 10.5 4.5-1 9-5.5 9-10.5A9.5 9.5 0 0 0 12 2z"/>
+              <path d="M12 2v20"/>
+              <path d="M12 7c2 2 4 3 6 3"/>
+              <path d="M12 12c-2 2-4 3-6 3"/>
+            </svg>
+          </div>
+          <span class="gateway-badge">DASHBOARD #1 • PRODUCTION</span>
+          <h3 class="gateway-title">SKADUTA Hidroponik NextGen™</h3>
+          <p class="gateway-desc">
+            Pusat telemetri presisi tinggi untuk instalasi hidroponik NFT 3 tingkat dengan visualisasi 3D WebGL Digital Twin, AI Voice commander, dan dosing nutrisi otomatis.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00f5a0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>3D Digital Twin Interaktif</strong> (NFT Rack 3 Tingkat, 36+ Aksi)</span>
+            </div>
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00f5a0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Closed-Loop Sensor pH & TDS</strong> dengan Radial Gauge</span>
+            </div>
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00f5a0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Upik AI Voice Commander</strong> (Kontrol suara & teks bahasa alami)</span>
+            </div>
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00f5a0" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>4 Pompa Presisi:</strong> pH Up, pH Down, Nutrisi A, Nutrisi B</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gateway-action-btn">
+          <span>Buka Dashboard Hidroponik</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+      <!-- DASHBOARD 2: WOKWI SIMULATION LAB -->
+      <a href="wokwi.html" class="gateway-card wokwi">
+        <div>
+          <div class="gateway-icon-box">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2"/>
+              <rect x="9" y="9" width="6" height="6"/>
+              <line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
+              <line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+              <line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="15" x2="23" y2="15"/>
+              <line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="15" x2="4" y2="15"/>
+            </svg>
+          </div>
+          <span class="gateway-badge">DASHBOARD #2 • SIMULATION BENCH</span>
+          <h3 class="gateway-title">Wokwi ESP32 IoT Test Lab</h3>
+          <p class="gateway-desc">
+            Dashboard uji coba hardware simulator Wokwi. Dilengkapi kendali 4 lampu LED, pembacaan multi-sensor (DHT22, Sonar Jarak, LDR, PIR), serta One-Click JSON/INO Exporter.
+          </p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>4 Lampu LED Realtime:</strong> Merah (D2), Kuning (D4), Hijau (D5), Biru (D18)</span>
+            </div>
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Multi-Sensor Telemetry:</strong> Suhu & Hum (DHT22), Jarak (HC-SR04), LDR, PIR</span>
+            </div>
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>One-Click Wokwi Exporter:</strong> Unduh/salin <code>diagram.json</code> & <code>sketch.ino</code></span>
+            </div>
+            <div class="feature-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <span><strong>Sinkronisasi Instan</strong> dua arah dengan Cloud Firebase RTDB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gateway-action-btn">
+          <span>Buka Dashboard Wokwi Lab</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+    </main>
+
+    <!-- Footer Bar -->
+    <footer class="portal-footer">
+      <div>
+        <span>Firebase Engine: <strong>smart-agriculture-316d0</strong> (Google Realtime Database)</span>
+      </div>
+      <div style="font-family:'JetBrains Mono', monospace;">
+        <span>Multi-Protocol: HTTP / HTTPS / file:// Support Active</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Firebase JavaScript SDK Compat (100% Bebas Kendala CORS) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Inisialisasi Firebase untuk Status Connection di Homepage
+    const firebaseConfig = {
+      apiKey: "AIzaSyDRtm0CGH0Whia-odsOpk6o0nJlT8gJi9I",
+      authDomain: "smart-agriculture-316d0.firebaseapp.com",
+      databaseURL: "https://smart-agriculture-316d0-default-rtdb.firebaseio.com",
+      projectId: "smart-agriculture-316d0",
+      storageBucket: "smart-agriculture-316d0.firebasestorage.app",
+      messagingSenderId: "417867548109",
+      appId: "1:417867548109:web:67913b243a1efa66b4f084",
+      measurementId: "G-Y78H2E5CHH"
+    };
+
+    if (typeof firebase !== 'undefined') {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const database = firebase.database();
+      database.ref('.info/connected').on('value', (snap) => {
+        const isOnline = snap.val() === true;
+        const statusElem = document.getElementById('db-status');
+        const badge = document.getElementById('telemetry-badge');
+        if (isOnline) {
+          if (statusElem) {
+            statusElem.innerText = "STREAM ONLINE";
+            statusElem.style.color = "#00f5a0";
+          }
+          if (badge) {
+            badge.style.borderColor = "rgba(0, 245, 160, 0.4)";
+            badge.style.background = "rgba(0, 245, 160, 0.08)";
+          }
+        } else {
+          if (statusElem) {
+            statusElem.innerText = "MENYAMBUNGKAN...";
+            statusElem.style.color = "#ffb830";
+          }
+        }
+      });
+    }
+
+    // Realtime Clock
+    function updateClock() {
+      const clockElem = document.getElementById('clock-display');
+      if (clockElem) {
+        clockElem.innerText = new Date().toLocaleTimeString('id-ID', { hour12: false }) + ' WIB';
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</body>
+</html>
