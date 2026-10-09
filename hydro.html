@@ -566,6 +566,15 @@
     <div class="ai-fab-tooltip" id="ai-fab-tooltip">
       <span>💬 Tanya AI / Perintah Suara</span>
     </div>
+    <!-- Voice Mode Selector -->
+    <div class="voice-mode-select" style="margin-top:8px; text-align:center;">
+      <label for="voice-mode" style="color:var(--text-muted); font-size:0.75rem; margin-right:4px;">Mode Suara:</label>
+      <select id="voice-mode" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cfd9e8; padding:2px 6px; border-radius:4px;">
+        <option value="default" selected>Default (Browser TTS)</option>
+        <option value="shiroko_id">Shiroko – Indonesia</option>
+        <option value="shiroko_ja">Shiroko – Jepang</option>
+      </select>
+    </div>
     <button id="ai-fab-btn" class="ai-fab-btn" title="Buka AI Command Deck">
       <div class="ai-fab-pulse"></div>
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
